@@ -43,7 +43,9 @@ public class LocalProcessor {
     public void listIterator(List<String> stringList) {
         this.stringList = new LinkedList<>(stringList);
         for (String s : this.stringList) {
-            logger.info(String.valueOf(s.hashCode()));
+            if (s != null) {
+                logger.info(String.valueOf(s.hashCode()));
+            }
         }
     }
 
