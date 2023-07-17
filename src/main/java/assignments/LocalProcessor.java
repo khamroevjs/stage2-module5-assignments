@@ -11,6 +11,8 @@ import assignments.annotations.ListIteratorAnnotation;
 import assignments.annotations.ReadFullProcessorNameAnnotation;
 import lombok.Getter;
 import lombok.Setter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Getter
 @Setter
@@ -20,16 +22,18 @@ public class LocalProcessor {
     protected String processorVersion;
     private int valueOfCheap;
     private Scanner informationScanner;
-    private LinkedList<String> stringArrayList = new LinkedList<>();
+    private List<String> stringList = new LinkedList<>();
+    private static Logger logger = LoggerFactory.getLogger(LocalProcessor.class);
+    private StringBuilder builder;
 
     public LocalProcessor(String processorName, long period, String processorVersion, int valueOfCheap,
-                          Scanner informationScanner, LinkedList<String> stringArrayList) {
+                          Scanner informationScanner, List<String> stringList) {
         this.processorName = processorName;
         this.period = period;
         this.processorVersion = processorVersion;
         this.valueOfCheap = valueOfCheap;
         this.informationScanner = informationScanner;
-        this.stringArrayList = stringArrayList;
+        this.stringList = stringList;
     }
 
     public LocalProcessor() {
@@ -37,16 +41,16 @@ public class LocalProcessor {
 
     @ListIteratorAnnotation
     public void listIterator(List<String> stringList) {
-        stringArrayList = new LinkedList<>(stringList);
-        for (int i = 0; i < period; i++) {
-            System.out.println(stringArrayList.get(i).hashCode());
+        this.stringList = new LinkedList<>(stringList);
+        for (String s : this.stringList) {
+            logger.info(String.valueOf(s.hashCode()));
         }
     }
 
     @FullNameProcessorGeneratorAnnotation
     public String fullNameProcessorGenerator(List<String> stringList) {
-        StringBuilder builder = new StringBuilder();
-        for (int i = 0; i < stringArrayList.size(); i++) {
+        builder = new StringBuilder();
+        for (int i = 0; i < this.stringList.size(); i++) {
             builder.append(stringList.get(i));
             builder.append(' ');
         }
@@ -56,11 +60,13 @@ public class LocalProcessor {
 
     @ReadFullProcessorNameAnnotation
     public void readFullProcessorName(File file) throws FileNotFoundException {
-        informationScanner = new Scanner(file);
-        StringBuilder builder = new StringBuilder();
-        while (informationScanner.hasNext()) {
-            builder.append(informationScanner.nextLine());
+        try (Scanner scanner = new Scanner(file)) {
+            informationScanner = scanner;
+            builder = new StringBuilder();
+            while (informationScanner.hasNext()) {
+                builder.append(informationScanner.nextLine());
+            }
+            processorName = builder.toString();
         }
-        processorName = builder.toString();
     }
 }
